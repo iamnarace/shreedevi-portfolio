@@ -1848,3 +1848,92 @@ a {
     font-size: 2.8rem;
   }
 }
+
+
+/* ==========================================================================
+   ACCESSIBILITY & MODERN UX ENHANCEMENTS (UI-UX-PRO-MAX COMPLIANCE)
+   ========================================================================== */
+
+/* Focus rings for keyboard navigation */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid #141518;
+  outline-offset: 3px;
+}
+
+/* Ensure touch targets meet minimum 44px */
+.btn-editorial-pill,
+.btn-dark-primary,
+.btn-outline-minimal,
+.mobile-hamburger,
+.social-tag-pill,
+.preset-pill,
+.story-tab-btn,
+.calc-dir-btn {
+  min-height: 44px;
+}
+
+/* Ensure cursor pointer on all interactive elements */
+button,
+a,
+.preset-pill,
+.story-tab-btn,
+.calc-dir-btn,
+.topic-chip-card,
+.channel-radio-card,
+.service-card-action {
+  cursor: pointer;
+}
+
+/* Inline SVG styling */
+.arrow-glyph, .tag-svg, .h-svg {
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.h-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.h-svg {
+  flex-shrink: 0;
+  margin-top: 3px;
+  color: var(--accent-gold);
+}
+
+.tag-svg {
+  color: var(--accent-gold);
+  flex-shrink: 0;
+}
+
+.service-card-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.service-card-action svg {
+  transition: transform 0.2s ease;
+}
+
+.service-card-action:hover svg {
+  transform: translateX(4px);
+}
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .marquee-track {
+    animation: none !important;
+  }
+}

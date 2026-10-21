@@ -1,11 +1,11 @@
 /**
- * SHREEDEVI GYAWALI — PORTFOLIO & BANKING ADVISORY
+ * NAMUNA GYAWALI (SHREEDEVI GYAWALI)
  * Interactive JavaScript Engine
  */
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  // 1. Mobile Menu Drawer Navigation
+  // 1. Mobile Drawer Navigation
   const mobileToggle = document.getElementById('mobileToggle');
   const drawerClose = document.getElementById('drawerClose');
   const mobileDrawer = document.getElementById('mobileDrawer');
@@ -14,7 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!mobileDrawer) return;
     mobileDrawer.classList.add('open');
     mobileDrawer.setAttribute('aria-hidden', 'false');
-    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
   }
 
@@ -22,17 +21,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!mobileDrawer) return;
     mobileDrawer.classList.remove('open');
     mobileDrawer.setAttribute('aria-hidden', 'true');
-    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
     document.body.style.overflow = '';
   }
 
-  if (mobileToggle) {
-    mobileToggle.addEventListener('click', openDrawer);
-  }
-
-  if (drawerClose) {
-    drawerClose.addEventListener('click', closeDrawer);
-  }
+  if (mobileToggle) mobileToggle.addEventListener('click', openDrawer);
+  if (drawerClose) drawerClose.addEventListener('click', closeDrawer);
 
   if (mobileDrawer) {
     mobileDrawer.querySelectorAll('a').forEach(link => {
@@ -40,56 +33,27 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 2. Dynamic Year
+  // 2. Dynamic Copyright Year
   const yearEl = document.getElementById('currentYear');
   if (yearEl) {
     yearEl.textContent = new Date().getFullYear();
   }
 
-  // 3. Quick Email Copy with Toast Notification
-  const copyBtn = document.getElementById('quickCopyEmail');
-  const toast = document.getElementById('toastNotification');
-  const toastMsg = document.getElementById('toastMessage');
-
-  function showToast(message) {
-    if (!toast || !toastMsg) return;
-    toastMsg.textContent = message;
-    toast.classList.add('show');
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 3200);
-  }
-
-  if (copyBtn) {
-    copyBtn.addEventListener('click', () => {
-      const email = copyBtn.getAttribute('data-email') || 'gyawali8864@gmail.com';
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(email).then(() => {
-          showToast(`Copied ${email} to clipboard!`);
-        }).catch(() => {
-          showToast(`Contact: ${email}`);
-        });
-      } else {
-        showToast(`Contact: ${email}`);
-      }
-    });
-  }
-
-  // 4. Standalone KRW ⇄ NPR Calculator
+  // 3. Standalone KRW ⇄ NPR Currency Engine
   const calcAmountInput = document.getElementById('calcAmount');
   const displayRecipient = document.getElementById('displayRecipientAmount');
   const displayRate = document.getElementById('displayRate');
   const displayFee = document.getElementById('displayFee');
   const displaySpeed = document.getElementById('displaySpeed');
   const displayCurrencyLabel = document.getElementById('displayCurrencyLabel');
-  const presetBtns = document.querySelectorAll('.preset-btn');
+  const presetChips = document.querySelectorAll('.preset-chip');
   const channelRadios = document.querySelectorAll('input[name="remitMethod"]');
-  const channelCards = document.querySelectorAll('.channel-radio-card');
+  const channelCards = document.querySelectorAll('.channel-card');
   const tabKRWtoNPR = document.getElementById('tabKRWtoNPR');
   const tabNPRtoKRW = document.getElementById('tabNPRtoKRW');
-  const calcFieldLabel = document.querySelector('.calc-field-label');
-  const calcSymbol = document.querySelector('.calc-currency-symbol');
-  const calcTag = document.querySelector('.calc-currency-tag');
+  const calcFieldLabel = document.getElementById('calcFieldLabel');
+  const calcSymbol = document.getElementById('calcSymbol');
+  const calcUnit = document.getElementById('calcUnit');
 
   // Benchmark exchange rates
   const KRW_TO_NPR_BENCHMARK = 0.10145; // 1 KRW ≈ 0.10145 NPR
@@ -139,16 +103,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (calcAmountInput) {
     calcAmountInput.addEventListener('input', () => {
-      presetBtns.forEach(b => b.classList.remove('active'));
+      presetChips.forEach(c => c.classList.remove('active'));
       updateCalculator();
     });
   }
 
-  presetBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      presetBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      const amt = btn.getAttribute('data-amount');
+  presetChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      presetChips.forEach(c => c.classList.remove('active'));
+      chip.classList.add('active');
+      const amt = chip.getAttribute('data-amount');
       if (amt && calcAmountInput) {
         calcAmountInput.value = amt;
         updateCalculator();
@@ -160,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
     radio.addEventListener('change', (e) => {
       currentMethod = e.target.value;
       channelCards.forEach(c => c.classList.remove('selected'));
-      const parent = e.target.closest('.channel-radio-card');
+      const parent = e.target.closest('.channel-card');
       if (parent) parent.classList.add('selected');
       updateCalculator();
     });
@@ -176,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (calcFieldLabel) calcFieldLabel.textContent = 'You Send (Korean Won - KRW)';
       if (calcSymbol) calcSymbol.textContent = '₩';
-      if (calcTag) calcTag.textContent = 'KRW';
+      if (calcUnit) calcUnit.textContent = 'KRW';
       if (calcAmountInput) calcAmountInput.value = '1000000';
 
       updateCalculator();
@@ -191,108 +155,52 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (calcFieldLabel) calcFieldLabel.textContent = 'Reference Amount (Nepali Rupee - NPR)';
       if (calcSymbol) calcSymbol.textContent = 'Rs.';
-      if (calcTag) calcTag.textContent = 'NPR';
+      if (calcUnit) calcUnit.textContent = 'NPR';
       if (calcAmountInput) calcAmountInput.value = '100000';
 
       updateCalculator();
     });
   }
 
-  // 5. Booking Topic Selection & Cross-linking
-  const topicCards = document.querySelectorAll('.topic-radio-card');
-  const serviceActionLinks = document.querySelectorAll('[data-topic]');
-
-  topicCards.forEach(card => {
-    card.addEventListener('click', () => {
-      topicCards.forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      const radio = card.querySelector('input[type="radio"]');
-      if (radio) radio.checked = true;
+  // 4. Blog Category Filter Pills
+  const catPills = document.querySelectorAll('.cat-pill');
+  catPills.forEach(pill => {
+    pill.addEventListener('click', () => {
+      catPills.forEach(p => p.classList.remove('active'));
+      pill.classList.add('active');
     });
   });
 
-  serviceActionLinks.forEach(link => {
-    link.addEventListener('click', () => {
-      const targetTopic = link.getAttribute('data-topic');
-      if (!targetTopic) return;
-
-      topicCards.forEach(card => {
-        const radio = card.querySelector('input[type="radio"]');
-        if (radio && radio.value === targetTopic) {
-          topicCards.forEach(c => c.classList.remove('selected'));
-          card.classList.add('selected');
-          radio.checked = true;
-        }
-      });
-    });
-  });
-
-  // 6. Consultation Booking Form Handling (Mailto Concierge)
-  const form = document.getElementById('consultationForm');
-  const successBox = document.getElementById('bookingSuccessMessage');
-  const successSummary = document.getElementById('successSummaryText');
-  const directMailLink = document.getElementById('directMailLink');
-  const resetBtn = document.getElementById('resetBookingBtn');
-
-  if (form) {
-    form.addEventListener('submit', (e) => {
+  // 5. Contact Form Handler (Mailto Concierge)
+  const contactForm = document.getElementById('contactForm');
+  if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
       e.preventDefault();
 
-      const selectedService = form.querySelector('input[name="selectedService"]:checked')?.value || 'General Banking Advisory';
-      const meetingChannel = document.getElementById('meetingFormat')?.value || 'Google Meet / Zoom';
-      const preferredDate = document.getElementById('preferredDate')?.value || 'Flexible';
-      const name = document.getElementById('clientName')?.value || 'Client';
-      const email = document.getElementById('clientEmail')?.value || '';
-      const phone = document.getElementById('clientPhone')?.value || 'Not provided';
-      const language = document.getElementById('clientLang')?.value || 'English';
-      const notes = document.getElementById('clientNotes')?.value || 'No additional notes provided.';
+      const name = document.getElementById('name')?.value || 'Friend';
+      const email = document.getElementById('email')?.value || '';
+      const topic = document.getElementById('topic')?.value || 'General Inquiry';
+      const message = document.getElementById('message')?.value || '';
 
-      const subject = encodeURIComponent(`Consultation Request: ${selectedService} – ${name}`);
+      const subject = encodeURIComponent(`Message from ${name} [${topic}]`);
       const body = encodeURIComponent(
-        `Dear Shreedevi Gyawali,\n\n` +
-        `I would like to schedule a consultation regarding ${selectedService}.\n\n` +
-        `=== Consultation Details ===\n` +
-        `• Full Name: ${name}\n` +
-        `• Email Address: ${email}\n` +
-        `• Phone / KakaoTalk: ${phone}\n` +
-        `• Preferred Channel: ${meetingChannel}\n` +
-        `• Preferred Date: ${preferredDate}\n` +
-        `• Preferred Language: ${language}\n\n` +
-        `=== Inquiry Notes ===\n` +
-        `${notes}\n\n` +
+        `Hello Namuna,\n\n` +
+        `I am writing to connect with you regarding: ${topic}.\n\n` +
+        `• Name: ${name}\n` +
+        `• Email: ${email}\n\n` +
+        `--- Message ---\n` +
+        `${message}\n\n` +
         `Best regards,\n${name}`
       );
 
       const mailtoUrl = `mailto:gyawali8864@gmail.com?subject=${subject}&body=${body}`;
-
-      if (successSummary) {
-        successSummary.textContent = `Thank you, ${name}! Your consultation inquiry for "${selectedService}" via ${meetingChannel} has been drafted. Please confirm and send the email to complete your booking.`;
-      }
-      if (directMailLink) {
-        directMailLink.href = mailtoUrl;
-      }
-
-      form.style.display = 'none';
-      if (successBox) {
-        successBox.style.display = 'block';
-        successBox.scrollIntoView({ behavior: 'smooth' });
-      }
-
-      // Automatically trigger email client
       window.location.href = mailtoUrl;
+
+      alert(`Thank you, ${name}! Your email client has been prepared with your message directed to Namuna Gyawali.`);
+      contactForm.reset();
     });
   }
 
-  if (resetBtn && form && successBox) {
-    resetBtn.addEventListener('click', () => {
-      form.reset();
-      form.style.display = 'block';
-      successBox.style.display = 'none';
-      form.scrollIntoView({ behavior: 'smooth' });
-    });
-  }
-
-  // 7. Initialize Calculator
+  // 6. Initialize Calculator
   updateCalculator();
-
 });

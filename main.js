@@ -267,6 +267,28 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // 7. About Persona Tabs Switcher (Institutional vs Personal)
+  const tabInstitutional = document.getElementById('tabInstitutional');
+  const tabPersonal = document.getElementById('tabPersonal');
+  const contentInstitutional = document.getElementById('contentInstitutional');
+  const contentPersonal = document.getElementById('contentPersonal');
+
+  if (tabInstitutional && tabPersonal && contentInstitutional && contentPersonal) {
+    tabInstitutional.addEventListener('click', () => {
+      tabInstitutional.classList.add('active');
+      tabPersonal.classList.remove('active');
+      contentInstitutional.style.display = 'block';
+      contentPersonal.style.display = 'none';
+    });
+
+    tabPersonal.addEventListener('click', () => {
+      tabPersonal.classList.add('active');
+      tabInstitutional.classList.remove('active');
+      contentPersonal.style.display = 'block';
+      contentInstitutional.style.display = 'none';
+    });
+  }
+
   // Initialize Calculator on load
   updateCalculator();
 });

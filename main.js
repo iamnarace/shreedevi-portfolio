@@ -54,9 +54,9 @@ document.addEventListener('DOMContentLoaded', () => {
   const displayFee = document.getElementById('displayFee');
   const displaySpeed = document.getElementById('displaySpeed');
   const heroQuickRate = document.getElementById('heroQuickRate');
-  const presetChips = document.querySelectorAll('.preset-chip');
+  const presetChips = document.querySelectorAll('.preset-pill, .preset-chip');
   const channelRadios = document.querySelectorAll('input[name="remitMethod"]');
-  const channelCards = document.querySelectorAll('.channel-option');
+  const channelCards = document.querySelectorAll('.channel-radio-card, .channel-option');
   const tabKRWtoNPR = document.getElementById('tabKRWtoNPR');
   const tabNPRtoKRW = document.getElementById('tabNPRtoKRW');
 
@@ -84,7 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
     } else if (currentMethod === 'swift') {
       feeText = '₩15,000 + Correspondent Wire Fee';
       speedText = '1–2 Business Days';
-      effectiveRate = KRW_TO_NPR_RATE * 0.998; // slight commercial spread
+      effectiveRate = KRW_TO_NPR_RATE * 0.998;
     } else if (currentMethod === 'app') {
       feeText = '₩4,000 (~$3.00)';
       speedText = 'Within 30–60 Minutes';
@@ -94,14 +94,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (currentDirection === 'KRW_TO_NPR') {
       const calculatedNPR = Math.round(rawVal * effectiveRate);
       displayRecipient.textContent = 'Rs. ' + calculatedNPR.toLocaleString('en-US');
-      displayRate.textContent = `1 KRW = ${effectiveRate.toFixed(5)} NPR`;
+      if (displayRate) displayRate.textContent = `1 KRW = ${effectiveRate.toFixed(5)} NPR`;
       if (heroQuickRate) {
         heroQuickRate.textContent = `~ ${(effectiveRate * 1000).toFixed(2)} NPR`;
       }
     } else {
       const calculatedKRW = Math.round(rawVal * NPR_TO_KRW_RATE);
       displayRecipient.textContent = '₩ ' + calculatedKRW.toLocaleString('en-US');
-      displayRate.textContent = `1 NPR = ${NPR_TO_KRW_RATE.toFixed(3)} KRW`;
+      if (displayRate) displayRate.textContent = `1 NPR = ${NPR_TO_KRW_RATE.toFixed(3)} KRW`;
     }
 
     if (displayFee) displayFee.textContent = feeText;
@@ -111,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // Handle amount input change
   if (calcAmountInput) {
     calcAmountInput.addEventListener('input', () => {
-      // Remove active class from preset chips if input manually modified
       presetChips.forEach(c => c.classList.remove('active'));
       updateCalculator();
     });
@@ -135,21 +134,27 @@ document.addEventListener('DOMContentLoaded', () => {
     radio.addEventListener('change', (e) => {
       currentMethod = e.target.value;
       channelCards.forEach(card => card.classList.remove('selected'));
-      e.target.closest('.channel-option').classList.add('selected');
+      const parentCard = e.target.closest('.channel-radio-card, .channel-option');
+      if (parentCard) parentCard.classList.add('selected');
       updateCalculator();
     });
   });
 
   // Tab direction switchers
   if (tabKRWtoNPR && tabNPRtoKRW) {
+    const inputLabel = document.querySelector('.calc-input-label, .input-label');
+    const currSymbol = document.querySelector('.calc-curr-symbol, .currency-symbol');
+    const currCode = document.querySelector('.calc-curr-code, .currency-code');
+    const bigCurr = document.querySelector('.amount-currency, .big-currency');
+
     tabKRWtoNPR.addEventListener('click', () => {
       tabKRWtoNPR.classList.add('active');
       tabNPRtoKRW.classList.remove('active');
       currentDirection = 'KRW_TO_NPR';
-      document.querySelector('.input-label').textContent = 'You Send (Korean Won - KRW)';
-      document.querySelector('.currency-symbol').textContent = '₩';
-      document.querySelector('.currency-code').textContent = 'KRW';
-      document.querySelector('.big-currency').textContent = 'NPR (Nepali Rupees)';
+      if (inputLabel) inputLabel.textContent = 'You Send (Korean Won - KRW)';
+      if (currSymbol) currSymbol.textContent = '₩';
+      if (currCode) currCode.textContent = 'KRW';
+      if (bigCurr) bigCurr.textContent = 'NPR (Nepali Rupees)';
       calcAmountInput.value = '1000000';
       updateCalculator();
     });
@@ -158,20 +163,19 @@ document.addEventListener('DOMContentLoaded', () => {
       tabNPRtoKRW.classList.add('active');
       tabKRWtoNPR.classList.remove('active');
       currentDirection = 'NPR_TO_KRW';
-      document.querySelector('.input-label').textContent = 'Reference Amount (Nepali Rupee - NPR)';
-      document.querySelector('.currency-symbol').textContent = 'Rs.';
-      document.querySelector('.currency-code').textContent = 'NPR';
-      document.querySelector('.big-currency').textContent = 'KRW (Korean Won)';
+      if (inputLabel) inputLabel.textContent = 'Reference Amount (Nepali Rupee - NPR)';
+      if (currSymbol) currSymbol.textContent = 'Rs.';
+      if (currCode) currCode.textContent = 'NPR';
+      if (bigCurr) bigCurr.textContent = 'KRW (Korean Won)';
       calcAmountInput.value = '100000';
       updateCalculator();
     });
   }
 
   // 5. Booking Form Service Selectors & Pre-population
-  const serviceCards = document.querySelectorAll('.service-radio-grid .radio-card');
-  const serviceBtns = document.querySelectorAll('.service-btn');
+  const serviceCards = document.querySelectorAll('.topic-chip-card, .radio-card');
+  const serviceBtns = document.querySelectorAll('.service-card-action, .service-btn');
 
-  // Sync radio card styling
   serviceCards.forEach(card => {
     card.addEventListener('click', () => {
       serviceCards.forEach(c => c.classList.remove('selected'));
@@ -181,12 +185,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Clicking service cards in the Services section scrolls to booking and selects the relevant radio
   serviceBtns.forEach(btn => {
     btn.addEventListener('click', (e) => {
-      const serviceName = btn.getAttribute('data-service');
+      const serviceName = btn.getAttribute('data-service') || '';
       const matchingRadio = Array.from(serviceCards).find(card => {
-        const title = card.querySelector('.radio-title')?.textContent || '';
+        const title = card.querySelector('.topic-name, .radio-title')?.textContent || '';
         return serviceName.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(serviceName.toLowerCase());
       });
 
@@ -219,7 +222,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const language = document.getElementById('clientLang')?.value || 'English';
       const notes = document.getElementById('clientNotes')?.value || 'No additional notes provided.';
 
-      // Construct a pre-formatted mailto body
       const subject = encodeURIComponent(`Consultation Booking Request: ${selectedService} - ${name}`);
       const body = encodeURIComponent(
         `Dear Shreedevi Gyawali,\n\n` +
@@ -238,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const mailtoUrl = `mailto:gyawali8864@gmail.com?subject=${subject}&body=${body}`;
 
-      // Update success message & trigger email client
       if (successSummary) {
         successSummary.textContent = `Thank you, ${name}! Your consultation request for "${selectedService}" (${format}) has been prepared.`;
       }
@@ -246,14 +247,12 @@ document.addEventListener('DOMContentLoaded', () => {
         directMailLink.href = mailtoUrl;
       }
 
-      // Hide form, show success state
       form.style.display = 'none';
       if (successBox) {
         successBox.style.display = 'block';
         successBox.scrollIntoView({ behavior: 'smooth' });
       }
 
-      // Attempt to open email client automatically
       window.location.href = mailtoUrl;
     });
   }

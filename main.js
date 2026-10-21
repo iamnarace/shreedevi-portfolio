@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', () => {
       mobileDrawer.classList.toggle('open');
     });
 
-    // Close mobile drawer when clicking a link
     mobileDrawer.querySelectorAll('a').forEach(link => {
       link.addEventListener('click', () => {
         mobileDrawer.classList.remove('open');
@@ -22,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     yearEl.textContent = new Date().getFullYear();
   }
 
-  // 3. Quick Email Copy to Clipboard with Toast
+  // 3. Quick Email Copy to Clipboard with Toast Notification
   const copyBtn = document.getElementById('quickCopyEmail');
   const toast = document.getElementById('toastNotification');
   const toastMsg = document.getElementById('toastMessage');
@@ -47,33 +46,31 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 4. Interactive KRW ⇄ NPR Currency Calculator
+  // 4. Interactive KRW ⇄ NPR Currency Engine
   const calcAmountInput = document.getElementById('calcAmount');
   const displayRecipient = document.getElementById('displayRecipientAmount');
   const displayRate = document.getElementById('displayRate');
   const displayFee = document.getElementById('displayFee');
   const displaySpeed = document.getElementById('displaySpeed');
-  const heroQuickRate = document.getElementById('heroQuickRate');
-  const presetChips = document.querySelectorAll('.preset-pill, .preset-chip');
+  const presetChips = document.querySelectorAll('.preset-chip');
   const channelRadios = document.querySelectorAll('input[name="remitMethod"]');
-  const channelCards = document.querySelectorAll('.channel-radio-card, .channel-option');
+  const channelCards = document.querySelectorAll('.channel-card');
   const tabKRWtoNPR = document.getElementById('tabKRWtoNPR');
   const tabNPRtoKRW = document.getElementById('tabNPRtoKRW');
 
   // Benchmark exchange rates
-  // 1 KRW ≈ 0.10145 NPR; 1 NPR ≈ 9.857 KRW
   const KRW_TO_NPR_RATE = 0.10145;
   const NPR_TO_KRW_RATE = 9.857;
 
-  let currentDirection = 'KRW_TO_NPR'; // or 'NPR_TO_KRW'
-  let currentMethod = 'api'; // 'api', 'swift', 'app'
+  let currentDirection = 'KRW_TO_NPR';
+  let currentMethod = 'api';
 
   function updateCalculator() {
     if (!calcAmountInput || !displayRecipient) return;
 
     const rawVal = parseFloat(calcAmountInput.value) || 0;
 
-    let feeText = '₩5,000 (~$3.70)';
+    let feeText = '₩5,000 (Hana Easy-One Rate)';
     let speedText = 'Instant to ~2 Hours';
     let effectiveRate = KRW_TO_NPR_RATE;
 
@@ -95,9 +92,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const calculatedNPR = Math.round(rawVal * effectiveRate);
       displayRecipient.textContent = 'Rs. ' + calculatedNPR.toLocaleString('en-US');
       if (displayRate) displayRate.textContent = `1 KRW = ${effectiveRate.toFixed(5)} NPR`;
-      if (heroQuickRate) {
-        heroQuickRate.textContent = `~ ${(effectiveRate * 1000).toFixed(2)} NPR`;
-      }
     } else {
       const calculatedKRW = Math.round(rawVal * NPR_TO_KRW_RATE);
       displayRecipient.textContent = '₩ ' + calculatedKRW.toLocaleString('en-US');
@@ -108,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
     if (displaySpeed) displaySpeed.textContent = speedText;
   }
 
-  // Handle amount input change
   if (calcAmountInput) {
     calcAmountInput.addEventListener('input', () => {
       presetChips.forEach(c => c.classList.remove('active'));
@@ -116,7 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Preset chips click
   presetChips.forEach(chip => {
     chip.addEventListener('click', () => {
       presetChips.forEach(c => c.classList.remove('active'));
@@ -129,23 +121,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // Method radios
   channelRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
       currentMethod = e.target.value;
       channelCards.forEach(card => card.classList.remove('selected'));
-      const parentCard = e.target.closest('.channel-radio-card, .channel-option');
-      if (parentCard) parentCard.classList.add('selected');
+      const parent = e.target.closest('.channel-card');
+      if (parent) parent.classList.add('selected');
       updateCalculator();
     });
   });
 
-  // Tab direction switchers
   if (tabKRWtoNPR && tabNPRtoKRW) {
-    const inputLabel = document.querySelector('.calc-input-label, .input-label');
-    const currSymbol = document.querySelector('.calc-curr-symbol, .currency-symbol');
-    const currCode = document.querySelector('.calc-curr-code, .currency-code');
-    const bigCurr = document.querySelector('.amount-currency, .big-currency');
+    const inputLabel = document.querySelector('.calc-label');
+    const currSymbol = document.querySelector('.calc-symbol');
+    const currCode = document.querySelector('.calc-code');
+    const bigCurr = document.querySelector('.big-currency-name');
 
     tabKRWtoNPR.addEventListener('click', () => {
       tabKRWtoNPR.classList.add('active');
@@ -172,37 +162,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 5. Booking Form Service Selectors & Pre-population
-  const serviceCards = document.querySelectorAll('.topic-chip-card, .radio-card');
-  const serviceBtns = document.querySelectorAll('.service-card-action, .service-btn');
+  // 5. Booking Form Service Selectors
+  const topicChips = document.querySelectorAll('.topic-chip');
+  const serviceActionLinks = document.querySelectorAll('.service-action-link');
 
-  serviceCards.forEach(card => {
-    card.addEventListener('click', () => {
-      serviceCards.forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      const radio = card.querySelector('input[type="radio"]');
+  topicChips.forEach(chip => {
+    chip.addEventListener('click', () => {
+      topicChips.forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      const radio = chip.querySelector('input[type="radio"]');
       if (radio) radio.checked = true;
     });
   });
 
-  serviceBtns.forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const serviceName = btn.getAttribute('data-service') || '';
-      const matchingRadio = Array.from(serviceCards).find(card => {
-        const title = card.querySelector('.topic-name, .radio-title')?.textContent || '';
+  serviceActionLinks.forEach(link => {
+    link.addEventListener('click', (e) => {
+      const serviceName = link.getAttribute('data-service') || '';
+      const matchingChip = Array.from(topicChips).find(chip => {
+        const title = chip.querySelector('.t-name')?.textContent || '';
         return serviceName.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(serviceName.toLowerCase());
       });
 
-      if (matchingRadio) {
-        serviceCards.forEach(c => c.classList.remove('selected'));
-        matchingRadio.classList.add('selected');
-        const radio = matchingRadio.querySelector('input[type="radio"]');
+      if (matchingChip) {
+        topicChips.forEach(c => c.classList.remove('selected'));
+        matchingChip.classList.add('selected');
+        const radio = matchingChip.querySelector('input[type="radio"]');
         if (radio) radio.checked = true;
       }
     });
   });
 
-  // 6. Consultation Form Handling
+  // 6. Consultation Form Submission & Mailto Concierge
   const form = document.getElementById('consultationForm');
   const successBox = document.getElementById('bookingSuccessMessage');
   const successSummary = document.getElementById('successSummaryText');
@@ -266,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 7. About Persona Tabs Switcher (Institutional vs Personal)
+  // 7. About Persona Tabs Switcher
   const tabInstitutional = document.getElementById('tabInstitutional');
   const tabPersonal = document.getElementById('tabPersonal');
   const contentInstitutional = document.getElementById('contentInstitutional');

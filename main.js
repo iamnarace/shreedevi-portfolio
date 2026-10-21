@@ -1,17 +1,42 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // 1. Mobile Menu Toggle
-  const mobileToggle = document.getElementById('mobileToggle');
-  const mobileDrawer = document.getElementById('mobileDrawer');
-  
-  if (mobileToggle && mobileDrawer) {
-    mobileToggle.addEventListener('click', () => {
-      mobileDrawer.classList.toggle('open');
-    });
+/**
+ * SHREEDEVI GYAWALI — PORTFOLIO & BANKING ADVISORY
+ * Interactive JavaScript Engine
+ */
 
+document.addEventListener('DOMContentLoaded', () => {
+
+  // 1. Mobile Menu Drawer Navigation
+  const mobileToggle = document.getElementById('mobileToggle');
+  const drawerClose = document.getElementById('drawerClose');
+  const mobileDrawer = document.getElementById('mobileDrawer');
+
+  function openDrawer() {
+    if (!mobileDrawer) return;
+    mobileDrawer.classList.add('open');
+    mobileDrawer.setAttribute('aria-hidden', 'false');
+    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'true');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer() {
+    if (!mobileDrawer) return;
+    mobileDrawer.classList.remove('open');
+    mobileDrawer.setAttribute('aria-hidden', 'true');
+    if (mobileToggle) mobileToggle.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  if (mobileToggle) {
+    mobileToggle.addEventListener('click', openDrawer);
+  }
+
+  if (drawerClose) {
+    drawerClose.addEventListener('click', closeDrawer);
+  }
+
+  if (mobileDrawer) {
     mobileDrawer.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        mobileDrawer.classList.remove('open');
-      });
+      link.addEventListener('click', closeDrawer);
     });
   }
 
@@ -21,46 +46,54 @@ document.addEventListener('DOMContentLoaded', () => {
     yearEl.textContent = new Date().getFullYear();
   }
 
-  // 3. Quick Email Copy to Clipboard with Toast Notification
+  // 3. Quick Email Copy with Toast Notification
   const copyBtn = document.getElementById('quickCopyEmail');
   const toast = document.getElementById('toastNotification');
   const toastMsg = document.getElementById('toastMessage');
 
   function showToast(message) {
-    if (!toast) return;
+    if (!toast || !toastMsg) return;
     toastMsg.textContent = message;
     toast.classList.add('show');
     setTimeout(() => {
       toast.classList.remove('show');
-    }, 3000);
+    }, 3200);
   }
 
   if (copyBtn) {
     copyBtn.addEventListener('click', () => {
       const email = copyBtn.getAttribute('data-email') || 'gyawali8864@gmail.com';
-      navigator.clipboard.writeText(email).then(() => {
-        showToast(`Copied ${email} to clipboard!`);
-      }).catch(() => {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(email).then(() => {
+          showToast(`Copied ${email} to clipboard!`);
+        }).catch(() => {
+          showToast(`Contact: ${email}`);
+        });
+      } else {
         showToast(`Contact: ${email}`);
-      });
+      }
     });
   }
 
-  // 4. Interactive KRW ⇄ NPR Currency Engine
+  // 4. Standalone KRW ⇄ NPR Calculator
   const calcAmountInput = document.getElementById('calcAmount');
   const displayRecipient = document.getElementById('displayRecipientAmount');
   const displayRate = document.getElementById('displayRate');
   const displayFee = document.getElementById('displayFee');
   const displaySpeed = document.getElementById('displaySpeed');
-  const presetChips = document.querySelectorAll('.preset-chip');
+  const displayCurrencyLabel = document.getElementById('displayCurrencyLabel');
+  const presetBtns = document.querySelectorAll('.preset-btn');
   const channelRadios = document.querySelectorAll('input[name="remitMethod"]');
-  const channelCards = document.querySelectorAll('.channel-card');
+  const channelCards = document.querySelectorAll('.channel-radio-card');
   const tabKRWtoNPR = document.getElementById('tabKRWtoNPR');
   const tabNPRtoKRW = document.getElementById('tabNPRtoKRW');
+  const calcFieldLabel = document.querySelector('.calc-field-label');
+  const calcSymbol = document.querySelector('.calc-currency-symbol');
+  const calcTag = document.querySelector('.calc-currency-tag');
 
   // Benchmark exchange rates
-  const KRW_TO_NPR_RATE = 0.10145;
-  const NPR_TO_KRW_RATE = 9.857;
+  const KRW_TO_NPR_BENCHMARK = 0.10145; // 1 KRW ≈ 0.10145 NPR
+  const NPR_TO_KRW_BENCHMARK = 9.857;   // 1 NPR ≈ 9.857 KRW
 
   let currentDirection = 'KRW_TO_NPR';
   let currentMethod = 'api';
@@ -72,30 +105,32 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let feeText = '₩5,000 (Hana Easy-One Rate)';
     let speedText = 'Instant to ~2 Hours';
-    let effectiveRate = KRW_TO_NPR_RATE;
+    let effectiveRate = KRW_TO_NPR_BENCHMARK;
 
     if (currentMethod === 'api') {
       feeText = '₩5,000 (Hana Easy-One Rate)';
       speedText = 'Instant to ~2 Hours';
-      effectiveRate = KRW_TO_NPR_RATE;
+      effectiveRate = KRW_TO_NPR_BENCHMARK;
     } else if (currentMethod === 'swift') {
       feeText = '₩15,000 + Correspondent Wire Fee';
       speedText = '1–2 Business Days';
-      effectiveRate = KRW_TO_NPR_RATE * 0.998;
+      effectiveRate = KRW_TO_NPR_BENCHMARK * 0.998;
     } else if (currentMethod === 'app') {
       feeText = '₩4,000 (~$3.00)';
       speedText = 'Within 30–60 Minutes';
-      effectiveRate = KRW_TO_NPR_RATE * 0.995;
+      effectiveRate = KRW_TO_NPR_BENCHMARK * 0.995;
     }
 
     if (currentDirection === 'KRW_TO_NPR') {
       const calculatedNPR = Math.round(rawVal * effectiveRate);
       displayRecipient.textContent = 'Rs. ' + calculatedNPR.toLocaleString('en-US');
-      if (displayRate) displayRate.textContent = `1 KRW = ${effectiveRate.toFixed(5)} NPR`;
+      if (displayCurrencyLabel) displayCurrencyLabel.textContent = 'NPR (Nepali Rupees)';
+      if (displayRate) displayRate.textContent = `1 KRW ≈ ${effectiveRate.toFixed(5)} NPR`;
     } else {
-      const calculatedKRW = Math.round(rawVal * NPR_TO_KRW_RATE);
+      const calculatedKRW = Math.round(rawVal * NPR_TO_KRW_BENCHMARK);
       displayRecipient.textContent = '₩ ' + calculatedKRW.toLocaleString('en-US');
-      if (displayRate) displayRate.textContent = `1 NPR = ${NPR_TO_KRW_RATE.toFixed(3)} KRW`;
+      if (displayCurrencyLabel) displayCurrencyLabel.textContent = 'KRW (Korean Won)';
+      if (displayRate) displayRate.textContent = `1 NPR ≈ ${NPR_TO_KRW_BENCHMARK.toFixed(3)} KRW`;
     }
 
     if (displayFee) displayFee.textContent = feeText;
@@ -104,16 +139,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (calcAmountInput) {
     calcAmountInput.addEventListener('input', () => {
-      presetChips.forEach(c => c.classList.remove('active'));
+      presetBtns.forEach(b => b.classList.remove('active'));
       updateCalculator();
     });
   }
 
-  presetChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      presetChips.forEach(c => c.classList.remove('active'));
-      chip.classList.add('active');
-      const amt = chip.getAttribute('data-amount');
+  presetBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      presetBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const amt = btn.getAttribute('data-amount');
       if (amt && calcAmountInput) {
         calcAmountInput.value = amt;
         updateCalculator();
@@ -124,75 +159,75 @@ document.addEventListener('DOMContentLoaded', () => {
   channelRadios.forEach(radio => {
     radio.addEventListener('change', (e) => {
       currentMethod = e.target.value;
-      channelCards.forEach(card => card.classList.remove('selected'));
-      const parent = e.target.closest('.channel-card');
+      channelCards.forEach(c => c.classList.remove('selected'));
+      const parent = e.target.closest('.channel-radio-card');
       if (parent) parent.classList.add('selected');
       updateCalculator();
     });
   });
 
   if (tabKRWtoNPR && tabNPRtoKRW) {
-    const inputLabel = document.querySelector('.calc-label');
-    const currSymbol = document.querySelector('.calc-symbol');
-    const currCode = document.querySelector('.calc-code');
-    const bigCurr = document.querySelector('.big-currency-name');
-
     tabKRWtoNPR.addEventListener('click', () => {
       tabKRWtoNPR.classList.add('active');
       tabNPRtoKRW.classList.remove('active');
+      tabKRWtoNPR.setAttribute('aria-selected', 'true');
+      tabNPRtoKRW.setAttribute('aria-selected', 'false');
       currentDirection = 'KRW_TO_NPR';
-      if (inputLabel) inputLabel.textContent = 'You Send (Korean Won - KRW)';
-      if (currSymbol) currSymbol.textContent = '₩';
-      if (currCode) currCode.textContent = 'KRW';
-      if (bigCurr) bigCurr.textContent = 'NPR (Nepali Rupees)';
-      calcAmountInput.value = '1000000';
+
+      if (calcFieldLabel) calcFieldLabel.textContent = 'You Send (Korean Won - KRW)';
+      if (calcSymbol) calcSymbol.textContent = '₩';
+      if (calcTag) calcTag.textContent = 'KRW';
+      if (calcAmountInput) calcAmountInput.value = '1000000';
+
       updateCalculator();
     });
 
     tabNPRtoKRW.addEventListener('click', () => {
       tabNPRtoKRW.classList.add('active');
       tabKRWtoNPR.classList.remove('active');
+      tabNPRtoKRW.setAttribute('aria-selected', 'true');
+      tabKRWtoNPR.setAttribute('aria-selected', 'false');
       currentDirection = 'NPR_TO_KRW';
-      if (inputLabel) inputLabel.textContent = 'Reference Amount (Nepali Rupee - NPR)';
-      if (currSymbol) currSymbol.textContent = 'Rs.';
-      if (currCode) currCode.textContent = 'NPR';
-      if (bigCurr) bigCurr.textContent = 'KRW (Korean Won)';
-      calcAmountInput.value = '100000';
+
+      if (calcFieldLabel) calcFieldLabel.textContent = 'Reference Amount (Nepali Rupee - NPR)';
+      if (calcSymbol) calcSymbol.textContent = 'Rs.';
+      if (calcTag) calcTag.textContent = 'NPR';
+      if (calcAmountInput) calcAmountInput.value = '100000';
+
       updateCalculator();
     });
   }
 
-  // 5. Booking Form Service Selectors
-  const topicChips = document.querySelectorAll('.topic-chip');
-  const serviceActionLinks = document.querySelectorAll('.service-action-link');
+  // 5. Booking Topic Selection & Cross-linking
+  const topicCards = document.querySelectorAll('.topic-radio-card');
+  const serviceActionLinks = document.querySelectorAll('[data-topic]');
 
-  topicChips.forEach(chip => {
-    chip.addEventListener('click', () => {
-      topicChips.forEach(c => c.classList.remove('selected'));
-      chip.classList.add('selected');
-      const radio = chip.querySelector('input[type="radio"]');
+  topicCards.forEach(card => {
+    card.addEventListener('click', () => {
+      topicCards.forEach(c => c.classList.remove('selected'));
+      card.classList.add('selected');
+      const radio = card.querySelector('input[type="radio"]');
       if (radio) radio.checked = true;
     });
   });
 
   serviceActionLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      const serviceName = link.getAttribute('data-service') || '';
-      const matchingChip = Array.from(topicChips).find(chip => {
-        const title = chip.querySelector('.t-name')?.textContent || '';
-        return serviceName.toLowerCase().includes(title.toLowerCase()) || title.toLowerCase().includes(serviceName.toLowerCase());
-      });
+    link.addEventListener('click', () => {
+      const targetTopic = link.getAttribute('data-topic');
+      if (!targetTopic) return;
 
-      if (matchingChip) {
-        topicChips.forEach(c => c.classList.remove('selected'));
-        matchingChip.classList.add('selected');
-        const radio = matchingChip.querySelector('input[type="radio"]');
-        if (radio) radio.checked = true;
-      }
+      topicCards.forEach(card => {
+        const radio = card.querySelector('input[type="radio"]');
+        if (radio && radio.value === targetTopic) {
+          topicCards.forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          radio.checked = true;
+        }
+      });
     });
   });
 
-  // 6. Consultation Form Submission & Mailto Concierge
+  // 6. Consultation Booking Form Handling (Mailto Concierge)
   const form = document.getElementById('consultationForm');
   const successBox = document.getElementById('bookingSuccessMessage');
   const successSummary = document.getElementById('successSummaryText');
@@ -204,26 +239,26 @@ document.addEventListener('DOMContentLoaded', () => {
       e.preventDefault();
 
       const selectedService = form.querySelector('input[name="selectedService"]:checked')?.value || 'General Banking Advisory';
-      const format = document.getElementById('meetingFormat')?.value || 'Google Meet / Zoom';
-      const preferredDate = document.getElementById('preferredDate')?.value || 'Earliest available';
+      const meetingChannel = document.getElementById('meetingFormat')?.value || 'Google Meet / Zoom';
+      const preferredDate = document.getElementById('preferredDate')?.value || 'Flexible';
       const name = document.getElementById('clientName')?.value || 'Client';
       const email = document.getElementById('clientEmail')?.value || '';
-      const phone = document.getElementById('clientPhone')?.value || 'N/A';
+      const phone = document.getElementById('clientPhone')?.value || 'Not provided';
       const language = document.getElementById('clientLang')?.value || 'English';
       const notes = document.getElementById('clientNotes')?.value || 'No additional notes provided.';
 
-      const subject = encodeURIComponent(`Consultation Booking Request: ${selectedService} - ${name}`);
+      const subject = encodeURIComponent(`Consultation Request: ${selectedService} – ${name}`);
       const body = encodeURIComponent(
         `Dear Shreedevi Gyawali,\n\n` +
         `I would like to schedule a consultation regarding ${selectedService}.\n\n` +
-        `--- Consultation Details ---\n` +
+        `=== Consultation Details ===\n` +
         `• Full Name: ${name}\n` +
-        `• Email: ${email}\n` +
-        `• Phone/Kakao: ${phone}\n` +
-        `• Preferred Format: ${format}\n` +
+        `• Email Address: ${email}\n` +
+        `• Phone / KakaoTalk: ${phone}\n` +
+        `• Preferred Channel: ${meetingChannel}\n` +
         `• Preferred Date: ${preferredDate}\n` +
-        `• Language: ${language}\n\n` +
-        `--- Questions / Notes ---\n` +
+        `• Preferred Language: ${language}\n\n` +
+        `=== Inquiry Notes ===\n` +
         `${notes}\n\n` +
         `Best regards,\n${name}`
       );
@@ -231,7 +266,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const mailtoUrl = `mailto:gyawali8864@gmail.com?subject=${subject}&body=${body}`;
 
       if (successSummary) {
-        successSummary.textContent = `Thank you, ${name}! Your consultation request for "${selectedService}" (${format}) has been prepared.`;
+        successSummary.textContent = `Thank you, ${name}! Your consultation inquiry for "${selectedService}" via ${meetingChannel} has been drafted. Please confirm and send the email to complete your booking.`;
       }
       if (directMailLink) {
         directMailLink.href = mailtoUrl;
@@ -243,6 +278,7 @@ document.addEventListener('DOMContentLoaded', () => {
         successBox.scrollIntoView({ behavior: 'smooth' });
       }
 
+      // Automatically trigger email client
       window.location.href = mailtoUrl;
     });
   }
@@ -256,28 +292,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 7. About Persona Tabs Switcher
-  const tabInstitutional = document.getElementById('tabInstitutional');
-  const tabPersonal = document.getElementById('tabPersonal');
-  const contentInstitutional = document.getElementById('contentInstitutional');
-  const contentPersonal = document.getElementById('contentPersonal');
-
-  if (tabInstitutional && tabPersonal && contentInstitutional && contentPersonal) {
-    tabInstitutional.addEventListener('click', () => {
-      tabInstitutional.classList.add('active');
-      tabPersonal.classList.remove('active');
-      contentInstitutional.style.display = 'block';
-      contentPersonal.style.display = 'none';
-    });
-
-    tabPersonal.addEventListener('click', () => {
-      tabPersonal.classList.add('active');
-      tabInstitutional.classList.remove('active');
-      contentPersonal.style.display = 'block';
-      contentInstitutional.style.display = 'none';
-    });
-  }
-
-  // Initialize Calculator on load
+  // 7. Initialize Calculator
   updateCalculator();
+
 });
